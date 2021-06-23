@@ -1,0 +1,213 @@
+package com.example.myapplication;
+
+import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.os.Handler;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.animation.LinearInterpolator;
+import android.widget.Scroller;
+
+import androidx.annotation.Nullable;
+
+
+//这个只是半成品  还得配合歌词来联动 剩下的应该不难了
+public class lrc extends View {
+    TextPaint paint1;
+    TextPaint paint2;
+    TextPaint paint4;
+    Paint paint3;
+    private float jindu;
+    float mOffset = 0;
+    int line=0;
+    Scroller scroller = new Scroller(getContext());
+    Handler handler = new Handler();
+    boolean isSlide = false;
+    boolean isSroing = false;
+    int lines = 0;
+    ValueAnimator mAnimator;
+    Path path = new Path();
+
+    String a = "马马嘟嘟骑\n骑到那嘎嘎去\n嘎嘎不杀鸡呀\n娃娃我要回去\n嘎嘎不杀鹅\n娃娃我要过河\n嘎嘎嘎公他奈我奈不何哟咿儿哟\n骑到那嘎嘎去\n驾驾\n嘎嘎不杀鸡呀\n娃娃我要回去\n嘎嘎不杀鹅\n嘎公带我骑摩托\n嘎嘎嘎公他奈我奈不何哟咿儿哟\n\n马马嘟嘟骑" +
+            "\n骑到那嘎嘎去驾驾\n嘎嘎不杀鸡呀\n娃娃我要回去\n嘎嘎不杀鹅\n娃娃我要过河\n嘎嘎嘎公他奈我奈不何哟咿儿哟\n马马嘟嘟嘟嘟骑\n骑到那嘎嘎去\n驾驾\n嘎嘎不杀鸡呀\n娃娃我要回去\n嘎嘎不杀鹅\n嘎公带我骑摩托\n嘎嘎嘎公他奈我奈不何哟咿儿哟\n嘎嘎嘎公他奈我奈不何哟咿儿哟";
+    String[] gc;
+    int[] time = {17, 21, 25, 29, 33, 37, 41, 48, 52, 55, 56, 60, 64, 68, 72, 81, 97, 101, 105, 108, 112, 116, 120, 128, 132, 134, 135, 140, 143, 147, 151, 159, 168, 169, 170};
+    StaticLayout staticLayout;
+    private GestureDetector mGestureDetector;
+
+    public float getJindu() {
+        return jindu;
+    }
+
+    public void setJindu(float jindu) {
+        this.jindu = jindu;
+        invalidate();
+    }
+
+    public lrc(Context context) {
+        super(context);
+        init();
+    }
+
+    public lrc(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        init();
+    }
+
+    private void init() {
+        paint1 = new TextPaint();
+        paint1.setAntiAlias(true);
+        paint1.setTextSize(60);
+        paint1.setColor(Color.GRAY);
+        paint2 = new TextPaint();
+        paint2.setAntiAlias(true);
+        paint2.setTextSize(60);
+        paint2.setColor(Color.RED);
+
+        paint4 = new TextPaint();
+        paint4.set(paint1);
+        paint4.setColor(Color.YELLOW);
+
+        paint3 = new Paint();
+        paint3.setColor(Color.BLUE);
+        paint3.setStyle(Paint.Style.FILL);
+        paint3.setStrokeWidth(3);
+        paint3.setAntiAlias(true);
+        mGestureDetector = new GestureDetector(getContext(), mSimpleOnGestureListener);
+        mGestureDetector.setIsLongpressEnabled(false);
+        gc = a.split("\n");
+        handler.postDelayed(runnable, time[lines] * 100);
+    }
+
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            if(!isSroing) {
+                dh(mOffset,mOffset-142);
+            }
+            lines++;
+            invalidate();
+            handler.postDelayed(runnable, time[lines] * 100);
+            //isSlide = true;
+        }
+    };
+    Runnable runnable1 = new Runnable() {
+        @Override
+        public void run() {
+           dh(mOffset,lines*-142);
+           isSroing=false;
+            isSlide=false;
+        }
+    };
+
+    @SuppressLint("DrawAllocation")
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        canvas.save();
+        canvas.translate(0, (getHeight() >> 1) + mOffset);
+        staticLayout = new StaticLayout(a, paint1,
+                getWidth(), Layout.Alignment.ALIGN_CENTER, 2f, 0f, false);
+        staticLayout.draw(canvas);
+        canvas.translate(0,   lines * 142);
+        StaticLayout staticLayout1 = new StaticLayout(gc[lines], paint2,
+                getWidth(), Layout.Alignment.ALIGN_CENTER, 0f, 0f, false);
+        staticLayout1.draw(canvas);
+        if (isSlide) {
+            line = (int)-(mOffset-20 )/ 142;
+            Log.d( "onDraw: ",line+"");
+            canvas.translate(0, (line-lines)*142);
+            StaticLayout staticLayout3 = new StaticLayout(gc[line], paint4,
+                    getWidth(), Layout.Alignment.ALIGN_CENTER, 0f, 0f, false);
+            staticLayout3.draw(canvas);
+           canvas.restore();
+            path.reset();
+            path.moveTo(35, (getHeight() >> 1)  - 10);
+            path.lineTo(90, (getHeight() >> 1) + 30);
+            path.lineTo(35, (getHeight() >> 1)  + 60);
+            path.close();
+            canvas.drawPath(path, paint3);
+            canvas.drawLine(100, (getHeight() >> 1)  + 30, getWidth() - 100, (getHeight() >> 1) +  30, paint3);
+        }
+
+    }
+
+
+    public void dh(float a, float b) {
+        mAnimator = ValueAnimator.ofFloat(a, b);
+        mAnimator.setDuration(400);
+        mAnimator.setInterpolator(new LinearInterpolator());
+        mAnimator.addUpdateListener(animation -> {
+            mOffset = (float) animation.getAnimatedValue();
+            invalidate();
+        });
+        mAnimator.start();
+    }
+
+//    public void dh1() {
+//        mAnimator = ValueAnimator.ofInt(sumOff, 0);
+//        mAnimator.setDuration(500);
+//        mAnimator.setInterpolator(new LinearInterpolator());
+//        mAnimator.addUpdateListener(animation -> {
+//            int a = (int) animation.getAnimatedValue();
+//            scrollTo(0, a);
+//        });
+//        mAnimator.start();
+//    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            handler.postDelayed(runnable1, 2000);
+        }
+        mGestureDetector.onTouchEvent(event);
+        return true;
+    }
+
+
+    private final GestureDetector.SimpleOnGestureListener mSimpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            float x = e.getX();
+            float y = e.getY();
+            Log.d("onDown: ",x+"|"+y);
+            if (x > 30 && x < 80&&y>848&&y<900&&isSlide) {
+              lines=line;
+              handler.post(runnable1);
+            }
+            return super.onDown(e);
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            mOffset += (int) -distanceY;
+            int i = (gc.length - 1) * 142;
+            mOffset = Math.max(mOffset,-i);
+            mOffset = Math.min(mOffset, 0);
+            invalidate();
+                isSroing = true;
+                invalidate();
+                handler.removeCallbacks(runnable1);
+                isSlide = true;
+
+            return true;
+        }
+
+
+    };
+
+}
+

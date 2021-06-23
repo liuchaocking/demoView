@@ -1,0 +1,130 @@
+package com.example.myapplication;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PathMeasure;
+import android.graphics.RectF;
+import android.util.AttributeSet;
+import android.view.View;
+
+import androidx.annotation.Nullable;
+
+public class Circular  extends View {
+    private Paint paint1;
+    private Paint paint2;
+    private Paint paint3;
+    private Paint paint4;
+    private Paint paint5;
+    private Paint paint6;
+
+    private float[] pos;
+    private float[] tan;
+    PathMeasure mMeasure;
+    RectF rectF;
+    Path path;
+//如果需要自定义属性自己设置
+    public Circular(Context context) {
+        super(context);
+        init();
+    }
+    public Circular(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        init();
+    }
+    public Circular(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    private void init() {
+        pos=new float[2];
+        tan=new float[2];
+        paint1=new Paint();
+        paint2=new Paint();
+        paint3=new Paint();
+        paint4=new Paint();
+        paint5=new Paint();
+        paint6=new Paint();
+
+        paint1.setAntiAlias(true);
+        paint1.setStyle(Paint.Style.FILL);
+
+        paint2.set(paint1);
+        paint2.setColor(Color.GRAY);
+        paint3.set(paint1);
+        paint3.setColor(Color.RED);
+        paint4.set(paint1);
+        paint4.setColor(Color.YELLOW);
+        paint5.set(paint1);
+        paint5.setColor(Color.BLUE);
+        paint6.setAntiAlias(true);
+        paint6.setStyle(Paint.Style.STROKE);
+        paint6.setStrokeWidth(5);
+        paint6.setTextSize(30);
+
+        path = new Path();
+        mMeasure = new PathMeasure();
+        rectF=new RectF();
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+       //wrap_content与mach。。效果一样满足需求  如果你还有内边距啥的,外边距可以再详细去改
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        int width = getWidth();
+        rectF.bottom=width-250;rectF.left=250;rectF.top=250;rectF.right=width-250;
+        canvas.drawArc(rectF,-160,140,true,paint1);
+        path.addArc(rectF,-160,140);
+        path.addArc(rectF,-20,100);
+        path.addArc(rectF,80,50);
+        path.addArc(rectF,130,30);
+        path.addArc(rectF,160,40);
+        mMeasure.setPath(path,false);
+        mMeasure.getPosTan(mMeasure.getLength()/2, pos, tan);
+        float X=pos[0]-40;
+        float Y=pos[1]-40;
+        float ziti=pos[0]-200;
+        float[] xy={pos[0],pos[1]+2,X,Y,X,Y,ziti,Y};
+        canvas.drawLines(xy,paint6);
+        canvas.drawText("PHP",ziti-60,Y,paint6);
+
+        mMeasure.nextContour();
+        mMeasure.getPosTan(mMeasure.getLength()/2, pos, tan);
+        float X1=pos[0]+40;
+        float Y1=pos[1]+40;
+        float ziti1=pos[0]+160;
+        float[] xy1={pos[0],pos[1],X1,Y1,X1,Y1,ziti1,Y1};
+        canvas.drawLines(xy1,paint6);
+        canvas.drawText("IAPP",ziti1+10,Y1,paint6);
+        canvas.drawArc(rectF,-20,100,true,paint2);
+
+        mMeasure.nextContour();
+        mMeasure.getPosTan(mMeasure.getLength()/2, pos, tan);
+        float[] xy2 ={pos[0],pos[1],pos[0]-20,pos[1]+20,pos[0]-20,pos[1]+20,pos[0]-100,pos[1]+20};
+        canvas.drawLines(xy2,paint6);
+        canvas.drawText("Android",pos[0]-220,pos[1]+20,paint6);
+        canvas.drawArc(rectF,80,50,true,paint3);
+
+        mMeasure.nextContour();
+        mMeasure.getPosTan(mMeasure.getLength()/2, pos, tan);
+        float[] xy3 ={pos[0],pos[1],pos[0]-20,pos[1]+20,pos[0]-20,pos[1]+20,pos[0]-150,pos[1]+20};
+        canvas.drawLines(xy3,paint6);
+        canvas.drawText("JAVA",pos[0]-230,pos[1]+20,paint6);
+        canvas.drawArc(rectF,130,30,true,paint4);
+
+        mMeasure.nextContour();
+        mMeasure.getPosTan(mMeasure.getLength()/2, pos, tan);
+        float[] xy4 ={pos[0],pos[1],pos[0]-20,pos[1]-40,pos[0]-20,pos[1]-40,pos[0]-150,pos[1]-40};
+        canvas.drawLines(xy4,paint6);
+        canvas.drawText("CSS",pos[0]-210,pos[1]-40,paint6);
+        canvas.drawArc(rectF,160,40,true,paint5);
+    }
+}
